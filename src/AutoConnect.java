@@ -3,7 +3,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.HttpResponse;
 import java.util.Date;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
+import java.util.Scanner;
 import java.io.FileWriter;
 import java.io.FileNotFoundException;
 import java.net.ServerSocket;
@@ -18,10 +18,9 @@ public class AutoConnect {
 
 	public static void main(String[] args) {
 		
-		final Long 	INTVAL  = 9*60*1000L;
-		final Long 	PAUSE   = 60*000L;
-		final Long 	RESTART	= 3*3600*1000L;
-		final Long 	STOP 	= 8*3600*1000L;
+		Long 	INTVAL  	= 9*60*1000L;
+		Long 	STOP    	= 60*1000L;
+		Long 	RESTART		= 3*3600*1000L;
 		String 	userName 	= "jsjr02";
 		String 	userPwd  	= "MTExMTEx";
 		Date 	startTime	= new Date();
@@ -69,22 +68,24 @@ public class AutoConnect {
 			while(true){
 				switch (op) {
 					case 0: {// request the login page
-						if(!autocall.heartBeats()){
-							if(autocall.requestLogin()){
-								System.out.println("Msg: "+ dateFormat.format(new Date()) +" requestLogin successfully, start logining");
-								Log("Msg: "+ dateFormat.format(new Date()) +" requestLogin successfully, start logining");
-								op = 1;
-								break;
-							}
-							else{// request failed
-								
-								// log
-								System.out.println("Error: "+ dateFormat.format(new Date()) +" requestLogin failed");
-								Log("Error: "+ dateFormat.format(new Date()) +" requestLogin failed");
-							}
+						if(autocall.requestLogin()){
+							System.out.println("Msg: "+ dateFormat.format(new Date()) +" requestLogin successfully, start logining");
+							Log("Msg: "+ dateFormat.format(new Date()) +" requestLogin successfully, start logining");
+							op = 1;
+							
+							break;
 						}
-						op = 3;
-						break;
+						else{// request failed
+							
+							// log
+							System.out.println("Error: "+ dateFormat.format(new Date()) +" requestLogin failed");
+							Log("Error: "+ dateFormat.format(new Date()) +" requestLogin failed");
+							
+							op = 3;
+							//test
+							//System.out.println(op);
+							break;
+						}
 					}
 					case 1:{// post login forms
 						if (autocall.startLogin()) {// if login successfully,go to case 2
@@ -92,6 +93,7 @@ public class AutoConnect {
 							System.out.println("Msg: "+ dateFormat.format(new Date()) +" startLogin successfully");
 							Log("Msg: "+ dateFormat.format(new Date()) +" startLogin successfully");
 							op = 2;
+							
 							Thread.sleep(INTVAL);
 							break;
 						}
@@ -101,6 +103,7 @@ public class AutoConnect {
 							System.out.println("Error: "+ dateFormat.format(new Date()) +" startLogin failed");
 							Log("Error: "+ dateFormat.format(new Date()) +" startLogin failed");
 							op = 3;
+							
 							break;
 						}
 					}
@@ -108,18 +111,28 @@ public class AutoConnect {
 						if(autocall.heartBeats()){
 							System.out.println("Msg: "+ dateFormat.format(new Date()) +" heartBeats successfully");
 							Log("Msg: "+ dateFormat.format(new Date()) +" heartBeats successfully");
+							
 							Thread.sleep(INTVAL);
+							
 							op = 2;
 							break;
 						}
-						op = 0;
-						break;
+						else{
+							// log 
+							System.out.println("Error: "+ dateFormat.format(new Date()) +"heartBeats failed");
+							Log("Error: "+ dateFormat.format(new Date()) +" heartBeats failed");
+							
+							op = 3;
+							break;
+						}
+						
 					}
 					case 3: {// sleep for one minute
 						System.out.println("Msg: "+ dateFormat.format(new Date()) +" stop for 1 min");
 						Log("Msg: "+ dateFormat.format(new Date()) +" stop for 1 min");
-						Thread.sleep(PAUSE);
+						Thread.sleep(STOP);
 						op = 0;
+						
 						break;
 					}
 				}
@@ -128,15 +141,10 @@ public class AutoConnect {
 					startTime = new Date();
 					if(autocall.heartBeats() == true){
 						autocall.requestLogout();
+						autocall = null;
+						autocall = new Call(userName,userPwd);
 						op = 0;
 					}
-				}
-
-				if (checkTime() == true) {
-					System.out.println("Msg: "+ dateFormat.format(new Date()) +" the program will restart in 8 hours,stop connecting...");
-					Log("Msg: "+ dateFormat.format(new Date()) +" the program will restart in 8 hours,stop connecting...");
-					Thread.sleep(STOP);
-					op = 0;
 				}
 			}
 
@@ -151,16 +159,5 @@ public class AutoConnect {
 		FileWriter fw = new FileWriter("AutoConnect.log",true);
 		fw.write(logStr+"\n");
 		fw.close();
-	}
-
-	/* stop for 8 hours*/
-	static boolean checkTime(){
-		Calendar now = Calendar.getInstance();
-		//System.out.println(now.get(Calendar.HOUR_OF_DAY));
-		if(now.get(Calendar.HOUR_OF_DAY) >= 23){
-			return true;
-		}else{
-			return false;
-		}
 	}
 }
