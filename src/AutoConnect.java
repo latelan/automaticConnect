@@ -21,8 +21,8 @@ public class AutoConnect {
 		Long 	INTVAL  	= 9*60*1000L;
 		Long 	STOP    	= 60*1000L;
 		Long 	RESTART		= 3*3600*1000L;
-		String 	userName 	= "jsjr02";
-		String 	userPwd  	= "MTExMTEx";
+		String 	userName 	= "";
+		String 	userPwd  	= "";
 		Date 	startTime	= new Date();
 		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 		int listenerSocketFlagNum = 0;
